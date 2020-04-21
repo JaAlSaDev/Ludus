@@ -6,7 +6,26 @@ const userSchema = new Schema(
     first_name: String,
     last_name: String,
     email: String,
-    password: String
+    password: String,
+
+    FriendsList: [
+      {
+        friendID: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: ["reciever", "sender"],
+          required: true,
+        },
+        isAccepted: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
