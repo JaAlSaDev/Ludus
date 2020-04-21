@@ -1,14 +1,30 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
+const userSchema = new mongoose.Schema({
 
-const userSchema = new Schema(
-  {
-    first_name: String,
-    last_name: String,
-    email: String,
-    password: String,
 
-    FriendsList: [
+    name : {
+      type : String,
+      required : true
+    },
+    userName : {
+      type : String,
+      unique: true,
+      required : true
+    },
+    email : {
+      type : String,
+      unique: true,
+      required : true
+    },
+    password : {
+      type : String,
+      required : true
+    },
+    profilePic : {
+      type : String,
+      required : true
+    },
+      FriendsList: [
       {
         friendID: {
           type: mongoose.Schema.Types.ObjectId,
@@ -25,10 +41,14 @@ const userSchema = new Schema(
           default: false,
         },
       },
-    ],
-  },
-  { timestamps: true }
-);
+    ],                                 
+    dateOfBirth : Date,
+    nationality : String,
+    aboutMe : String,
+    languages : String
+}, 
+{timestamps : true}
+)
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+const User = mongoose.model('User', userSchema)
+module.exports = User

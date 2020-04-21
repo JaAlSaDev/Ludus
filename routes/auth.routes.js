@@ -1,67 +1,83 @@
-const router = require("express").Router();
-const User = require("../models/user.model");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const isLoggedIn = require("../config/config");
+
+const express = require('express')
+const router = express.Router()
+const User = require('../models/user.model')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const gravatar = require('gravatar')
 require("dotenv").config();
+//const isLoggedIn = require("../config/config");
+//require("dotenv").config();
 
-router.post("/register", async (req, res) => {
-  let { first_name, last_name, email, password } = req.body;
+// any route will start from user/...
+router.post('/register', (req, res) => {
+  
+  const newUser = {
+    name: req.body.name,
+    userName: req.body.userName,
+    email: req.body.email,
+    password: req.body.password,
+    profilePic: req.body.profilePic || gravatar.url(req.body.email, {protocol: 'https', s: '100'})
 
-  try {
-    let user = new User({ first_name, last_name, email, password });
-
-    user.password = await bcrypt.hash(password, 10);
-
-    await user.save();
-
-    res.json({ user }).status(200);
-  } catch (err) {
-    res.json({ message: err }).status(400);
   }
-});
+  // res.send(newUser)
+  User.findOne({ email: newUser.email })
+    .then(user => {
+      // if email is not registered in the DB
+      if (!user) {
 
-router.post("/login", async (req, res) => {
-  let { email, password } = req.body;
+        bcrypt.hash(newUser.password, 10, (err, hash) => {
 
-  try {
-    let user = await User.findOne({ email });
+          newUser.password = hash
+          User.create(newUser)
+            .then(() => {
+              let payload = { newUser }
+            let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
+              res.json({ msg: 'user created', userInfo: newUser, token })})
 
-    if (!user) {
-      return res.json({ message: "User not found" }).status(400);
-    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.json({ message: "Incorrect password!" }).status(400);
-    }
-
-    console.log(user);
-    const payload = {
-      user: {
-        id: user._id,
-      },
-    };
-
-    jwt.sign(
-      payload,
-      process.env.SECRET,
-      { expiresIn: 36000000 },
-      (err, token) => {
-        if (err) throw err;
-
-        res.json({ token }).status(200);
+        })
+      } else {
+        // if email is already on the DB
+        res.send('Email has already been used!')
       }
-    );
+    }).catch(err => res.json(err))
+})
 
-    // res.json({ message: payload }).status(200);
-  } catch (err) {
-    res.json({ message: "You are not loggedin!" }).status(200);
+
+router.post('/login', (req, res) => {
+  const userLogin = {
+    email: req.body.email,
+    password: req.body.password
   }
-});
 
-router.get("/user", async (req, res) => {
+  User.findOne({ email: userLogin.email })
+    .then(user => {
+
+      // if email exists
+      if (user) {
+        // if password is correct
+        if (bcrypt.compareSync(userLogin.password, user.password)) {
+
+          user.password = ""
+          let payload = { user }
+          let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
+
+          res.json({ token })
+
+        } else {
+          res.json({ msg: 'password is not correct' })
+        }
+
+      } else {
+        res.json({ msg: 'Email is wrong' })
+      }
+
+
+    }).catch(err => res.json(err).status(200))
+})
+
+router.get("/showProfile", async (req, res) => {
   console.log(req.body.user);
 
   try {
@@ -69,7 +85,7 @@ router.get("/user", async (req, res) => {
       path: "FriendsList.friendID",
       select: "first_name last_name",
     });;
-
+     
     if (!user) throw err;
 
     res.status(200).json({ user });
@@ -78,9 +94,11 @@ router.get("/user", async (req, res) => {
   }
 });
 
-router.put("/updateUser", isLoggedIn, async (req, res) => {
-  console.log(req.body);
 
+
+router.put("/updateUser", async (req, res) => {
+  console.log(req.body);
+  
   try {
     let user = await User.findByIdAndUpdate(req.user.id, req.body, {
       new: true,
@@ -98,12 +116,12 @@ router.put("/updateUser", isLoggedIn, async (req, res) => {
 router.get("/search", async (req, res) => {
   console.log(req.body);
 
-  let { first_name } = req.body;
+  let { searchTerm } = req.body;
 
   try {
     let users = await User.find(
-      { first_name: { $regex: first_name, $options: "i" }},
-      "first_name last_name"
+      { name: { $regex: searchTerm, $options: "i" }},
+      "name"
     );
 
     if (!users) throw err;
