@@ -24,6 +24,7 @@ require("./config/db");
 
   //Use the routes here
   app.use("/api/auth/", require("./routes/auth.routes"));
+  app.use("/api/gameCollection/", require("./routes/games.routes"));
 
   // 404 Routes
   //===================
