@@ -83,7 +83,7 @@ router.get("/showProfile", async (req, res) => {
   try {
     let user = await User.findById(req.body.user.id, "-password").populate({
       path: "FriendsList.friendID",
-      select: "first_name last_name",
+      select: "name",
     });;
      
     if (!user) throw err;
@@ -114,22 +114,27 @@ router.put("/updateUser", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
-  console.log(req.body);
+  console.log(req.body.obj);
 
-  let { searchTerm } = req.body;
+  
 
-  try {
-    let users = await User.find(
-      { name: { $regex: searchTerm, $options: "i" }},
-      "name"
-    );
+  
+  // let  {searchTerm}  = req.body.obj;
 
-    if (!users) throw err;
+  // console.log((req.body))
+  // try {
+  //   let users = await User.find(
+  //     { name: { $regex: searchTerm, $options: "i" }},
+  //     "name profilePic"
+  //   );
 
-    res.status(200).json({ users });
-  } catch (error) {
-    res.status(400).json({ error });
-  }
+  //   if (!users) throw err;
+
+  //   res.status(200).json({ users });
+  // } catch (error) {
+  //   console.log(error)
+  //   res.status(400).json({ error });
+  // }
 });
 
 router.put("/addFriend", async (req, res) => {

@@ -30,8 +30,8 @@ export const Register = () => {
          <Container>
             <h1>Register page</h1>
             <Form.Group>
-               <Form.Label>First Name</Form.Label>
-               <Form.Control name="firstName" onChange = { (e) => onChangeInput(e)} />
+               <Form.Label>Name</Form.Label>
+               <Form.Control name="name" onChange = { (e) => onChangeInput(e)} />
             </Form.Group>
             <Form.Group>
                <Form.Label>Username</Form.Label>

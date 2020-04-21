@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 import "./App.css";
-import { Nav } from './Nav/Nav'
-import { Login } from "./User/Login";
-import { Register } from "./User/Register";
+import { Nav } from './Components/Nav/Nav'
+import { Login } from "./Components/User/Login";
+import { Register } from "./Components/User/Register";
 import "bootstrap/dist/css/bootstrap.min.css";
 import jwt_decode from 'jwt-decode'
+import GameSearch from "./Components/Games/GameSearch";
+import UserSearch from "./Components/User/UserSearch";
 
 export default class App extends Component{
   state = {
@@ -48,7 +50,8 @@ export default class App extends Component{
         {/* <Route /> */}
         <Route path = '/login' component = {Login} />
         <Route path = '/register' component = {Register} />
-
+        <Route path = '/gameSearch' component = {GameSearch} />
+        <Route path = '/userSearch' component = {UserSearch} />
         </Switch>
     </div>
   );
