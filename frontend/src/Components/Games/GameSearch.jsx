@@ -21,7 +21,7 @@ export default class GameSearch extends Component {
 
   async getGames(searchTerm) {
     axios({
-      url: "http://localhost:3000/https://api-v3.igdb.com/games",
+      url: "https://cors-anywhere.herokuapp.com/https://api-v3.igdb.com/games",
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -31,7 +31,10 @@ export default class GameSearch extends Component {
     })
       .then((response) => {
         console.log(response.data);
-        // setResults(response.data);
+
+        this.setState({
+          results: response.data,
+        });
       })
       .catch((err) => {
         console.error(err);
@@ -52,11 +55,12 @@ export default class GameSearch extends Component {
             <button onClick={this.searchHandler}>Search</button>
           </Form.Group>
         </Container>
-        
 
-        {results.map((game) => {
-          return <GameCard game={game} />;
-        })}
+        <Row>
+          {results.map((game, i) => {
+            return <GameCard key={i} game={game} />;
+          })}
+        </Row>
       </div>
     );
   }

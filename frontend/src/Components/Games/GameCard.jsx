@@ -1,31 +1,51 @@
-import React from 'react'
+import React from "react";
 import { Col, Card } from "react-bootstrap";
-import { withRouter, NavLink } from "react-router-dom";
+import { withRouter, NavLink, Link } from "react-router-dom";
 
 export default function GameCard(props) {
-    let { name, coverSrc, first_release_date} = props;
+  let { id, name, cover, first_release_date } = props.game;
 
-    return (
-        <Col md={3} className="m-2">
-        <Card>
-          {/* <Image style={{ height: 150, width: 150 }} src={link} /> */}
-          <Card.Img
-            style={{ height: 400, width: "100%" }}
-            variant="top"
-            src={coverSrc}
-          />
-          <Card.Body>
-            <Card.Title className={"text-center"}>{name}</Card.Title>
-            <Card.Text>({first_release_date})</Card.Text>
-            {/* <NavLink
-              to={`/allmovie/${_id}`}
-              className="btn btn-warning btn-block mb-3"
-              variant="outline-warning"
-            >
-              Go to Game Page
-            </NavLink> */}
-          </Card.Body>
-        </Card>
-      </Col>
-    )
+  console.log("game id: " + id);
+  let imageSize = {
+    cover_small: "cover_small",
+    screenshot_med: "screenshot_med",
+    cover_big: "cover_big",
+    logo_med: "logo_med",
+    screenshot_big: "screenshot_big",
+    screenshot_huge: "screenshot_huge",
+    thumb: "thumb",
+    micro: "micro",
+    HD: "720p",
+    FHD: "1080p",
+  };
+  let imageSrc = " ``";
+
+  //Show an image if the cover exists
+  if (cover) {
+    let coverID = cover.image_id;
+    let size = imageSize.HD;
+    imageSrc = `https://images.igdb.com/igdb/image/upload/t_${size}/${coverID}.jpg`;
+  }
+
+  return (
+    <Col md={3} className="m-1">
+      <Card>
+        {/* <Image style={{ height: 150, width: 150 }} src={link} /> */}
+        <Card.Img
+          style={{ height: "100%", width: "100%" }}
+          variant="top"
+          src={imageSrc}
+        />
+        <Card.Body>
+          <Card.Title className={"text-center"}>
+            <Link className="a" to={`/gamePage/${id}`}>
+              {name}
+            </Link>
+          </Card.Title>
+
+          <Card.Text>({first_release_date})</Card.Text>
+        </Card.Body>
+      </Card>
+    </Col>
+  );
 }

@@ -113,28 +113,25 @@ router.put("/updateUser", async (req, res) => {
   }
 });
 
-router.get("/search", async (req, res) => {
-  console.log(req.body.obj);
+router.put("/search", async (req, res) => {
+  console.log(req.body);
 
-  
+  let  {searchTerm}  = req.body;
 
-  
-  // let  {searchTerm}  = req.body.obj;
+  console.log((req.body))
+  try {
+    let users = await User.find(
+      { name: { $regex: searchTerm, $options: "i" }},
+      "name profilePic"
+    );
 
-  // console.log((req.body))
-  // try {
-  //   let users = await User.find(
-  //     { name: { $regex: searchTerm, $options: "i" }},
-  //     "name profilePic"
-  //   );
+    if (!users) throw err;
 
-  //   if (!users) throw err;
-
-  //   res.status(200).json({ users });
-  // } catch (error) {
-  //   console.log(error)
-  //   res.status(400).json({ error });
-  // }
+    res.status(200).json({ users });
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({ error });
+  }
 });
 
 router.put("/addFriend", async (req, res) => {

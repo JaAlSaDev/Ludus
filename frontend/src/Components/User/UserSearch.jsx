@@ -20,29 +20,18 @@ export default class UserSearch extends Component {
   };
 
   async getUsers(searchTerm) {
-    let obj = {
-      searchTerm: searchTerm,
-    };
-    console.log(obj);
     axios
-      .get("http://localhost:5000/user/search", obj)
+      .put("http://localhost:5000/user/search", { searchTerm: searchTerm })
       .then((res) => {
-        this.state.results = res.data.users;
+        this.setState({
+          results: res.data.users,
+        });
 
-        console.log(this.state.results)
+        console.log(this.state.results);
       })
       .catch((err) => {
         console.log(err);
       });
-
-    // axios({
-    //   method: 'get',
-    //   url: "http://localhost:5000/user/search",
-    //   headers: {},
-    //   data: {
-    //     "searchTerm": searchTerm
-    //   }
-    // });
   }
 
   searchHandler = () => {
@@ -59,9 +48,11 @@ export default class UserSearch extends Component {
           </Form.Group>
         </Container>
 
-        {this.state.results.map((user) => {
-          return <UserCard user={user} />;
-        })}
+        <Row>
+          {this.state.results.map((user, i) => {
+            return <UserCard key={i} user={user} />;
+          })}
+        </Row>
       </div>
     );
   }

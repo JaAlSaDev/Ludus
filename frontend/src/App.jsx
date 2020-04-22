@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import jwt_decode from 'jwt-decode'
 import GameSearch from "./Components/Games/GameSearch";
 import UserSearch from "./Components/User/UserSearch";
+import GamePage from "./Components/Games/GamePage";
 
 export default class App extends Component{
   state = {
@@ -51,6 +52,7 @@ export default class App extends Component{
         <Route path = '/login' component = {Login} />
         <Route path = '/register' component = {Register} />
         <Route path = '/gameSearch' component = {GameSearch} />
+        <Route path = '/gamePage/:gameID' component = {GamePage} />
         <Route path = '/userSearch' component = {UserSearch} />
         </Switch>
     </div>
