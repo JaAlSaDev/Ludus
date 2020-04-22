@@ -22,13 +22,6 @@ export const Nav = (props) => (
       }}
     >
       <Header transparent title="LUDUS">
-        <Textfield
-          value="Call Of Duty"
-          onChange={() => {}}
-          label="Search"
-          expandable
-          expandableIcon="search"
-        />
         <Navigation>
           <Link className="a" to="/gameSearch">
             Search for Games!
@@ -36,25 +29,26 @@ export const Nav = (props) => (
           <Link className="a" to="/userSearch">
             Search for Friends!
           </Link>
-          <Link to="/">Make Friends!</Link>
-          <Link to="/">Profile</Link>
+          <Link to="/allUsers">Make Friends!</Link>
+          {props.authState.isLogin ? (
+          <Link to={`/users/${props.authState.user._id}`}>{props.user.name}</Link>): null}
         </Navigation>
       </Header>
       <Drawer title="Join Us!">
         <Navigation>
-          {!props.isLogin ? (
+          {!props.authState.isLogin ? (
             <>
               {" "}
-              <Button as={Link} to="/login" variant="outline-light">
+              <Button as={Link} to="/login" variant="outline-dark">
                 Login{" "}
               </Button>
-              <Button as={Link} to="/Register" variant="outline-light">
+              <Button as={Link} to="/Register" variant="outline-dark">
                 {" "}
                 Register{" "}
               </Button>{" "}
             </>
           ) : (
-            <Button as={Link} to="/" variant="outline-light">
+            <Button as={Link} to="/login" variant="outline-dark" onClick={props.logout}>
               {" "}
               Logout{" "}
             </Button>

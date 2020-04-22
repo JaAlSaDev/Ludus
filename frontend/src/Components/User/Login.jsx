@@ -21,12 +21,15 @@ export const Login = (props) => {
             if (res.data.token){
                 localStorage.setItem('token', res.data.token)
                 // props.userLogin()
-                props.history.push('/games')
+                // props.history.push('/games')
+                props.refreshPage()
             } else {
                 console.log('email or password is not correct')
             }
         }).catch(err => console.log(err))
     }
+
+ 
     return (
 
         <div>
@@ -45,7 +48,7 @@ export const Login = (props) => {
                         onChange={(e) => onChangeInput(e)}
                     />
                 </Form.Group>
-                <Button variant="primary" type="submit" onClick={(e) => onSubmit(e)} >
+                <Button variant="primary" type="submit" onClick={(e) =>{ onSubmit(e); }} >
                     Sign in!
 </Button>
             </Container>
