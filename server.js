@@ -7,35 +7,17 @@ const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT || 3001;
 
-var whitelist = [
-  "http://localhost:3000",
-  "http://localhost:5000",
-  "https://api-v3.igdb.com",
-];
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      var message =
-        "The CORS policy for this application does not allow access from origin " +
-        origin;
-      callback(new Error(message), false);
-    }
-  },
-};
-
 //connect mongodb
 //=================
 require("./config/db");
 
 //Middleware section
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
-// app.use(express.static("build"));
-// app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static("build"));
+app.use(express.static(path.join(__dirname, "build")));
 //tells express to look in public for static files
 
 // any route will start from user/...
@@ -46,8 +28,8 @@ app.get("*", (req, res) =>
 );
 
 
-// app.get("/*", (req, res) =>{
-//   res.sendFile(path.join(__dirname, "build", "index.html"));
-// })
+app.get("/*", (req, res) =>{
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+})
 
 app.listen(PORT, () => console.log(`Express running on ${PORT}`));
