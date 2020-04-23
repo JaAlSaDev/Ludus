@@ -1,9 +1,9 @@
 import React from "react";
-import { Col, Card, Button } from "react-bootstrap";
-import { withRouter, NavLink, Link } from "react-router-dom";
+import { Col, Card } from "react-bootstrap";
+import { withRouter, NavLink } from "react-router-dom";
 
 export default function UserCard(props) {
-  let { _id, name, profilePic } = props.user;
+  let { name, profilePic } = props.user;
 
   console.log(name)
   console.log(profilePic)
@@ -11,17 +11,13 @@ export default function UserCard(props) {
     <Col md={3} className="m-2">
       <Card>
         {/* <Image style={{ height: 150, width: 150 }} src={link} /> */}
-        {/* <Card.Img
+        <Card.Img
           style={{ height: 400, width: "100%" }}
           variant="top"
           src={profilePic}
-        /> */}
+        />
         <Card.Body>
-        <Card.Title className={"text-center"}>
-            <Link className="a" to={`/users/${_id}`}> 
-              {name}
-            </Link>
-          </Card.Title>
+          <Card.Title className={"text-center"}>{name}</Card.Title>
         </Card.Body>
       </Card>
     </Col>
