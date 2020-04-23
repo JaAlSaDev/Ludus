@@ -32,7 +32,7 @@ router.post('/register', (req, res) => {
           User.create(newUser)
             .then(() => {
               let payload = { newUser }
-            let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
+              let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
               res.json({ msg: 'user created', userInfo: newUser, token })})
 
 
@@ -77,11 +77,11 @@ router.post('/login', (req, res) => {
     }).catch(err => res.json(err).status(200))
 })
 
-router.get("/showProfile", async (req, res) => {
-  console.log(req.body.user);
+router.put("/showProfile", async (req, res) => {
+  console.log(req.body);
 
   try {
-    let user = await User.findById(req.body.user.id, "-password").populate({
+    let user = await User.findById(req.body.userID, "-password").populate({
       path: "FriendsList.friendID",
       select: "name",
     });;
@@ -94,13 +94,20 @@ router.get("/showProfile", async (req, res) => {
   }
 });
 
-
-
 router.put("/updateUser", async (req, res) => {
   console.log(req.body);
-  
+  let {
+    _id,
+    password
+  } = req.body
+  delete req.body._id
   try {
-    let user = await User.findByIdAndUpdate(req.user.id, req.body, {
+    if(password !== ""){
+      req.body.password = await bcrypt.hash(req.body.password, 10)
+    } else {
+      delete req.body.password
+    }
+    let user = await User.findByIdAndUpdate( _id, req.body, {
       new: true,
     });
 

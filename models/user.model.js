@@ -43,9 +43,18 @@ const userSchema = new mongoose.Schema({
       },
     ],                                 
     dateOfBirth : Date,
-    nationality : String,
-    aboutMe : String,
-    languages : String
+    nationality: {
+      type: String,
+      default: ""
+    },
+    aboutMe : {
+      type: String,
+      default: ""
+    },
+    languages : {
+      type: String,
+      default: ""
+    } 
 }, 
 {timestamps : true}
 )
