@@ -3,14 +3,20 @@ import { Form, Container, Row, Col, Button, Alert } from 'react-bootstrap'
 import Axios from 'axios'
 
 
-export const Register = () => {
+export const Register = (props) => {
 
    const [user, setUser] = useState({})
 
    useEffect(() => {
       console.log(user)
 
-   })
+    Axios.post("http://localhost:5000/user/register", user)
+      .then((res) => {
+          props.userLogin(res.data.token)
+        //   props.refreshPage();
+      })
+      .catch((err) => console.log(err.response));
+  })
 
    let onChangeInput = ({target: {name, value}}) => {
       setUser({...user, [name]:value})

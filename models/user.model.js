@@ -1,35 +1,35 @@
-const mongoose = require('mongoose')
-const userSchema = new mongoose.Schema({
-
-
-    name : {
-      type : String,
-      required : true
+const mongoose = require("mongoose");
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-    userName : {
-      type : String,
+    userName: {
+      type: String,
       unique: true,
-      required : true
+      required: true,
     },
-    email : {
-      type : String,
+    email: {
+      type: String,
       unique: true,
-      required : true
+      required: true,
     },
-    password : {
-      type : String,
-      required : true
+    password: {
+      type: String,
+      required: true,
     },
-    profilePic : {
-      type : String,
-      required : true
+    profilePic: {
+      type: String,
+      required: true,
     },
-      FriendsList: [
+    FriendsList: [
       {
         friendID: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
           required: true,
+          default: null,
         },
         role: {
           type: String,
@@ -39,8 +39,9 @@ const userSchema = new mongoose.Schema({
         isAccepted: {
           type: Boolean,
           default: false,
-        },
+        }
       },
+<<<<<<< HEAD
     ],                                 
     dateOfBirth : Date,
     nationality : String,
@@ -49,6 +50,25 @@ const userSchema = new mongoose.Schema({
 }, 
 {timestamps : true}
 )
+=======
+    ],
+    dateOfBirth: Date,
+    nationality: {
+      type: String,
+      default: "",
+    },
+    aboutMe: {
+      type: String,
+      default: "",
+    },
+    languages: {
+      type: String,
+      default: "",
+    },
+  },
+  { timestamps: true }
+);
+>>>>>>> AB_USER_FUNCs
 
-const User = mongoose.model('User', userSchema)
-module.exports = User
+const User = mongoose.model("User", userSchema);
+module.exports = User;
