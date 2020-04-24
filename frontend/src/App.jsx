@@ -12,6 +12,7 @@ import GamePage from "./Components/Games/GamePage";
 import Profile from "./Components/User/Profile";
 import EditProfile from "./Components/User/EditProfile";
 import { decode } from "jsonwebtoken";
+import Axios from "axios";
 
 export default class App extends Component {
   state = {
@@ -27,22 +28,33 @@ export default class App extends Component {
     }
   }
 
-  loginHandler= (token) =>{
-
+  loginHandler = (token) => {
     this.userLogin(token);
-  }
+  };
 
-  userLogin = (token) => {
+  userLogin = async (token) => {
     localStorage.setItem("token", token);
-    let user = decode(token);
+    let decodedToken = decode(token);
     // console.log(token)
 
-    console.log(user)
-    if (user) {
-      this.setState({
-        user: user.newUser,
-        isLogin: true,
-      });
+    console.log(decodedToken);
+    if (decodedToken) {
+      try {
+        let user = await this.getUserInfo(decodedToken.userName);
+
+        this.setState({
+          user: user,
+          isLogin: true,
+        });
+      } catch (error) {
+        console.log(error);
+        this.setState({
+          user: null,
+          isLogin: false,
+        });
+      }
+    } else {
+      localStorage.removeItem("token");
     }
   };
 
@@ -54,6 +66,19 @@ export default class App extends Component {
       isLogin: false,
     });
   };
+
+  async getUserInfo(userName) {
+    try {
+      let res = await Axios.get(
+        `http://localhost:5000/user/showProfile/${userName}`
+      );
+      let user = await res.data.user;
+      return user;
+    } catch (error) {
+      console.log(error.response);
+      return null;
+    }
+  }
 
   refreshPage = () => {
     this.forceUpdate();
@@ -99,13 +124,19 @@ export default class App extends Component {
           <Route path="/userSearch" component={UserSearch} />
           <Route
             path="/users/:userName"
-            render={(props) => <Profile authState={this.state} {...props} />}
+            render={(props) => (
+              <Profile
+                authState={this.state}
+                getUserInfo={this.getUserInfo}
+                {...props}
+              />
+            )}
           />
           <Route
             path="/EditProfile/:userName"
             render={(props) =>
               isLogin && props.match.params.userName === user.userName ? (
-                <EditProfile {...props} />
+                <EditProfile getUserInfo={this.getUserInfo} {...props} />
               ) : (
                 <Login />
               )

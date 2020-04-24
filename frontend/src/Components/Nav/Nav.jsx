@@ -18,7 +18,9 @@ export const Nav = (props) => {
 
   if (props.authState.isLogin && props.authState.user) {
     profileElm = (
-      <Link to={`/users/${props.authState.user.userName}`}>{props.user.name}</Link>
+      <Link to={`/users/${props.authState.user.userName}`}>
+        {props.user.name}
+      </Link>
     );
   }
   return (

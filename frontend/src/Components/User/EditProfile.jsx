@@ -1,8 +1,6 @@
 import { Form, Container, Row, Col, Button, Alert } from "react-bootstrap";
 import axios from "axios";
-
 import React, { Component } from "react";
-
 export default class EditProfile extends Component {
   state = {
     user: {},
@@ -11,43 +9,44 @@ export default class EditProfile extends Component {
       password: "",
     },
   };
-
   onChangeInput = (e) => {
     let temp = { ...this.state };
-
     temp.edit[e.target.name] = e.target.value;
-
     this.setState(temp);
-
     console.log(this.state.edit);
   };
+  
+  getUserInfo = async (userName) => {
+    console.log("profile props", this.props);
 
-  getUserInfo = (userName) => {
-    axios
-      .get(`http://localhost:5000/user/showProfile/${userName}`)
-      .then((res) => {
-        console.log(res);
+    try {
+      let user = await this.props.getUserInfo(userName);
+
+      console.log("user get info", user);
+
+      if (user) {
         this.setState({
-          user: res.data.user,
+          user: user,
           isLoaded: true,
         });
-
-        console.log(this.state.user);
-      })
-      .catch((err) => {
-        console.log(err.response);
-      });
+      } else {
+        this.setState({
+          user: {
+          },
+          isLoaded: false,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
-
   onSubmit = (e) => {
     e.preventDefault();
-
     console.log(this.state.edit);
-
     axios
       .put("http://localhost:5000/user/updateUser", this.state.edit, {
         headers: {
-          "x-auth-token": localStorage.token
+          "x-auth-token": localStorage.token,
         },
       })
       .then((res) => {
@@ -57,14 +56,11 @@ export default class EditProfile extends Component {
         console.log(err.response);
       });
   };
-
   componentWillMount() {
     this.getUserInfo(this.props.match.params.userName);
   }
-
   render() {
     let { user, isLoaded } = this.state;
-
     let {
       _id,
       name,

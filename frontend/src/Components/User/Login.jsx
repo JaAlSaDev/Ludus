@@ -15,16 +15,16 @@ export const Login = (props) => {
 
   let onSubmit = (e) => {
     e.preventDefault();
-    console.log(login)
+
     Axios.post("http://localhost:5000/user/login", login)
       .then((res) => {
-        // if (res.data.token) {
+        if (res.data.token) {
           props.userLogin(res.data.token)
-          console.log(res.data.token)
+          console.log("login token",res.data.token)
 
-        // } else {
-        //   console.log("email or password is not correct");
-        // }
+        } else {
+          console.log("email or password is not correct");
+        }
       })
       .catch((err) => console.log(err.response));
   };

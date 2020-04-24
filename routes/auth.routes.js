@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
     user.password = await bcrypt.hash(newUser.password, 10);
     let userSaved = await user.save();
 
-    let payload = { newUser: userSaved };
+    let payload = { _id: userSaved._id, userName: userSaved.userName };
 
     let token = jwt.sign(payload, process.env.SECRET, {
       expiresIn: tokenDuration,
@@ -50,7 +50,8 @@ router.post("/login", (req, res) => {
         // if password is correct
         if (bcrypt.compareSync(userLogin.password, user.password)) {
           user.password = "";
-          let payload = { newUser: user };
+
+          let payload = { _id: user._id, userName: user.userName };
           let token = jwt.sign(payload, process.env.SECRET, {
             expiresIn: tokenDuration,
           });
@@ -79,7 +80,7 @@ router.get("/showProfile/:userName", async (req, res) => {
       model: "User",
     });
 
-    if (!user) throw err;
+    // if (!user) throw err;
     console.log(user);
     res.status(200).json({ user });
   } catch (error) {
@@ -89,24 +90,15 @@ router.get("/showProfile/:userName", async (req, res) => {
 });
 
 router.put("/updateUser", isLoggedIn, async (req, res) => {
-  console.log("body: ",req.body);
-  // console.log("token",req.user);
-
   try {
-    // let user = await User.findById(req.user._id);
-    if (!user) throw error;
-
     if (req.body.password !== "") {
       req.body.password = await bcrypt.hash(req.body.password, 10);
     } else {
       delete req.body.password;
     }
-    user = await User.findByIdAndUpdate(req.user._id, req.body, {
+    let user = await User.findByIdAndUpdate(req.userID, req.body, {
       new: true,
     });
-
-    // if (!user) throw error;
-
     return res.status(200).json({ user });
   } catch (error) {
     console.log(error);
@@ -135,10 +127,10 @@ router.put("/search", async (req, res) => {
   }
 });
 
-router.put("/addFriend", async (req, res) => {
+router.put("/addFriend", isLoggedIn, async (req, res) => {
   console.log(req.body);
 
-  let { senderId, recieverId } = req.body;
+  let { recieverId } = req.body;
   let senderFriendObj = {
     friendID: recieverId,
     role: "reciever",
@@ -146,14 +138,14 @@ router.put("/addFriend", async (req, res) => {
   };
 
   let recieverFriendObj = {
-    friendID: senderId,
+    friendID: req.userID,
     role: "sender",
     check: true,
   };
 
   try {
     let sender = await User.findByIdAndUpdate(
-      senderId,
+      req.userID,
       { $push: { FriendsList: senderFriendObj } },
       { new: true }
     );
@@ -171,21 +163,21 @@ router.put("/addFriend", async (req, res) => {
   }
 });
 
-router.put("/removeFriend", async (req, res) => {
+router.put("/removeFriend", isLoggedIn, async (req, res) => {
   console.log(req.body);
 
-  let { _id, friendID } = req.body;
+  let { friendID } = req.body;
 
   try {
     let user = await User.findByIdAndUpdate(
-      _id,
+      req.userID,
       { $pull: { FriendsList: { friendID: friendID } } },
       { new: true }
     );
 
     let friend = await User.findByIdAndUpdate(
       friendID,
-      { $pull: { FriendsList: { friendID: _id } } },
+      { $pull: { FriendsList: { friendID: req.userID } } },
       { new: true }
     );
 
@@ -196,20 +188,20 @@ router.put("/removeFriend", async (req, res) => {
   }
 });
 
-router.put("/acceptFriend", async (req, res) => {
+router.put("/acceptFriend", isLoggedIn, async (req, res) => {
   console.log(req.body);
 
-  let { recieverID, senderID } = req.body;
+  let { senderID } = req.body;
 
   try {
     let reciever = await User.update(
-      { _id: recieverID, "FriendsList.friendID": senderID },
+      { _id: req.userID, "FriendsList.friendID": senderID },
       { $set: { "FriendsList.$.isAccepted": true } },
       { new: true }
     );
 
     let sender = await User.update(
-      { _id: senderID, "FriendsList.friendID": recieverID },
+      { _id: senderID, "FriendsList.friendID": req.userID },
       { $set: { "FriendsList.$.isAccepted": true } },
       { new: true }
     );
@@ -220,5 +212,4 @@ router.put("/acceptFriend", async (req, res) => {
     res.status(400).json({ message: "Accept  unsuccessful!" });
   }
 });
-
 module.exports = router;
