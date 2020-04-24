@@ -39,7 +39,7 @@ export const Nav = (props) => {
             <Link className="a" to="/userSearch">
               Search for Friends!
             </Link>
-            <Link to="/allUsers">Make Friends!</Link>
+
             {profileElm}
           </Navigation>
         </Header>
