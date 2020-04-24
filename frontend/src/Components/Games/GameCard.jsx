@@ -18,7 +18,7 @@ export default function GameCard(props) {
     HD: "720p",
     FHD: "1080p",
   };
-  let imageSrc = " ``";
+  let imageSrc = "";
 
   //Show an image if the cover exists
   if (cover) {
@@ -43,7 +43,7 @@ export default function GameCard(props) {
             </Link>
           </Card.Title>
 
-          <Card.Text>({first_release_date})</Card.Text>
+          <Card.Text className={"text-center"}>({new Date(first_release_date*1000).getFullYear()})</Card.Text>
         </Card.Body>
       </Card>
     </Col>
