@@ -1,154 +1,151 @@
-
-const express = require('express')
-const router = express.Router()
-const User = require('../models/user.model')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const gravatar = require('gravatar')
+const express = require("express");
+const router = express.Router();
+const User = require("../models/user.model");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 require("dotenv").config();
-//const isLoggedIn = require("../config/config");
-//require("dotenv").config();
+let tokenDuration = process.env.TokenDuration;
+const isLoggedIn = require("../config/config");
 
 // any route will start from user/...
-router.post('/register', (req, res) => {
-  
+router.post("/register", async (req, res) => {
   const newUser = {
     name: req.body.name,
     userName: req.body.userName,
     email: req.body.email,
     password: req.body.password,
-    profilePic: req.body.profilePic || gravatar.url(req.body.email, {protocol: 'https', s: '100'})
+    profilePic:
+      req.body.profilePic ||
+      gravatar.url(req.body.email, { protocol: "https", s: "100" }),
+  };
 
+  try {
+    let user = new User(newUser);
+    user.password = await bcrypt.hash(newUser.password, 10);
+    let userSaved = await user.save();
+
+    let payload = { _id: userSaved._id, userName: userSaved.userName };
+
+    let token = jwt.sign(payload, process.env.SECRET, {
+      expiresIn: tokenDuration,
+    });
+    res.status(201).json({ msg: "user created", userInfo: user, token });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "unable to register" });
   }
-  // res.send(newUser)
-  User.findOne({ email: newUser.email })
-    .then(user => {
-      // if email is not registered in the DB
-      if (!user) {
+});
 
-        bcrypt.hash(newUser.password, 10, (err, hash) => {
-
-          newUser.password = hash
-          User.create(newUser)
-            .then(() => {
-              let payload = { newUser }
-            let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
-              res.json({ msg: 'user created', userInfo: newUser, token })})
-
-
-        })
-      } else {
-        // if email is already on the DB
-        res.send('Email has already been used!')
-      }
-    }).catch(err => res.json(err))
-})
-
-
-router.post('/login', (req, res) => {
+router.post("/login", (req, res) => {
   const userLogin = {
     email: req.body.email,
-    password: req.body.password
-  }
+    password: req.body.password,
+  };
 
   User.findOne({ email: userLogin.email })
-    .then(user => {
-
+    .then((user) => {
       // if email exists
       if (user) {
         // if password is correct
         if (bcrypt.compareSync(userLogin.password, user.password)) {
+          user.password = "";
 
-          user.password = ""
-          let payload = { user }
-          let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
+          let payload = { _id: user._id, userName: user.userName };
+          let token = jwt.sign(payload, process.env.SECRET, {
+            expiresIn: tokenDuration,
+          });
 
-          res.json({ token })
-
+          res.status(200).json({ token });
         } else {
-          res.json({ msg: 'password is not correct' })
+          res.status(400).json({ msg: "password is not correct" });
         }
-
       } else {
-        res.json({ msg: 'Email is wrong' })
+        res.status(400).json({ msg: "Email is wrong" });
       }
+    })
+    .catch((err) => res.status(400).json(err));
+});
 
-
-    }).catch(err => res.json(err).status(200))
-})
-
-router.get("/showProfile", async (req, res) => {
-  console.log(req.body.user);
+router.get("/showProfile/:userName", async (req, res) => {
+  console.log(req.body);
 
   try {
-    let user = await User.findById(req.body.user.id, "-password").populate({
+    let user = await User.findOne(
+      { userName: req.params.userName },
+      "-password"
+    ).populate({
       path: "FriendsList.friendID",
-      select: "first_name last_name",
-    });;
-     
-    if (!user) throw err;
+      select: "name",
+      model: "User",
+    });
 
+    // if (!user) throw err;
+    console.log(user);
     res.status(200).json({ user });
   } catch (error) {
-    res.status(400).json({ message: "something went wrong!" });
+    console.log(error);
+    res.status(400).json({ message: "something went wrong!", error });
   }
 });
 
-
-
-router.put("/updateUser", async (req, res) => {
-  console.log(req.body);
-  
+router.put("/updateUser", isLoggedIn, async (req, res) => {
   try {
-    let user = await User.findByIdAndUpdate(req.user.id, req.body, {
+    if (req.body.password !== "") {
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+    } else {
+      delete req.body.password;
+    }
+    let user = await User.findByIdAndUpdate(req.userID, req.body, {
       new: true,
     });
-
-    if (!user) throw err;
-
-    res.status(200).json({ user });
+    return res.status(200).json({ user });
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: "something went wrong!" });
   }
 });
 
-router.get("/search", async (req, res) => {
+router.put("/search", async (req, res) => {
   console.log(req.body);
 
   let { searchTerm } = req.body;
 
+  console.log(req.body);
   try {
     let users = await User.find(
-      { name: { $regex: searchTerm, $options: "i" }},
-      "name"
+      { name: { $regex: searchTerm, $options: "i" } },
+      "name profilePic userName"
     );
 
     if (!users) throw err;
 
     res.status(200).json({ users });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ error });
   }
 });
 
-router.put("/addFriend", async (req, res) => {
+router.put("/addFriend", isLoggedIn, async (req, res) => {
   console.log(req.body);
 
-  let { senderId, recieverId } = req.body;
+  let { recieverId } = req.body;
   let senderFriendObj = {
     friendID: recieverId,
     role: "reciever",
+    check: true,
   };
 
   let recieverFriendObj = {
-    friendID: senderId,
+    friendID: req.userID,
     role: "sender",
+    check: true,
   };
 
   try {
     let sender = await User.findByIdAndUpdate(
-      senderId,
+      req.userID,
       { $push: { FriendsList: senderFriendObj } },
       { new: true }
     );
@@ -166,21 +163,21 @@ router.put("/addFriend", async (req, res) => {
   }
 });
 
-router.put("/removeFriend", async (req, res) => {
+router.put("/removeFriend", isLoggedIn, async (req, res) => {
   console.log(req.body);
 
-  let { _id, friendID } = req.body;
+  let { friendID } = req.body;
 
   try {
     let user = await User.findByIdAndUpdate(
-      _id,
+      req.userID,
       { $pull: { FriendsList: { friendID: friendID } } },
       { new: true }
     );
 
     let friend = await User.findByIdAndUpdate(
       friendID,
-      { $pull: { FriendsList: { friendID: _id } } },
+      { $pull: { FriendsList: { friendID: req.userID } } },
       { new: true }
     );
 
@@ -191,20 +188,20 @@ router.put("/removeFriend", async (req, res) => {
   }
 });
 
-router.put("/acceptFriend", async (req, res) => {
+router.put("/acceptFriend", isLoggedIn, async (req, res) => {
   console.log(req.body);
 
-  let { recieverID, senderID } = req.body;
+  let { senderID } = req.body;
 
   try {
     let reciever = await User.update(
-      { _id: recieverID, "FriendsList.friendID": senderID },
+      { _id: req.userID, "FriendsList.friendID": senderID },
       { $set: { "FriendsList.$.isAccepted": true } },
       { new: true }
     );
 
     let sender = await User.update(
-      { _id: senderID, "FriendsList.friendID": recieverID },
+      { _id: senderID, "FriendsList.friendID": req.userID },
       { $set: { "FriendsList.$.isAccepted": true } },
       { new: true }
     );
@@ -215,7 +212,4 @@ router.put("/acceptFriend", async (req, res) => {
     res.status(400).json({ message: "Accept  unsuccessful!" });
   }
 });
-
-
-
 module.exports = router;
