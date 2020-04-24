@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Col, Card } from "react-bootstrap";
-import { withRouter, NavLink } from "react-router-dom";
 import Axios from "axios";
 
 export default class GamePage extends Component {
@@ -9,38 +8,16 @@ export default class GamePage extends Component {
     isLoaded: false,
   };
 
-  getGameInfo(gameID) {
-    Axios({
-      url: "https://cors-anywhere.herokuapp.com/https://api-v3.igdb.com/games",
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "user-key": "e136419f3f5c53e489266f695ae903e6",
-      },
-      data: `
-          fields 
+  async getGameInfo(gameID) {
+    try {
+      let game = await Axios.get(`http://localhost:5000/game/getGameInfo/${gameID}`);
 
-          name, summary, 
-          cover.image_id,
-          first_release_date, 
-          platforms.name, 
-          franchise.name, 
-          involved_companies.company.name, involved_companies.publisher, involved_companies.developer,
-          game_modes.name, 
-          genres.name;
-          
-          where id = ${gameID};`,
-    })
-      .then((response) => {
-
-        this.setState({
-          game: response.data[0],
-          isLoaded: true,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
+      this.setState({
+        game: game.data,
+        isLoaded: true,
       });
+    } catch (error) {
+    }
   }
 
   componentWillMount() {
@@ -96,7 +73,7 @@ export default class GamePage extends Component {
       ) : null;
     }
 
-    if (typeof(game_modes)!=='undefined') {
+    if (typeof game_modes !== "undefined") {
       gameModesElm =
         game_modes.length > 0 ? (
           <Card.Text>
@@ -109,7 +86,7 @@ export default class GamePage extends Component {
         ) : null;
     }
 
-    if (typeof(genres)!=='undefined') {
+    if (typeof genres !== "undefined") {
       genresElm =
         genres.length > 0 ? (
           <Card.Text>
@@ -122,7 +99,7 @@ export default class GamePage extends Component {
         ) : null;
     }
 
-    if (typeof(involved_companies)!=='undefined') {
+    if (typeof involved_companies !== "undefined") {
       developersElm =
         involved_companies.length > 0 ? (
           <Card.Text>
@@ -150,7 +127,7 @@ export default class GamePage extends Component {
         ) : null;
     }
 
-    if (typeof(platfroms)!=='undefined') {
+    if (typeof platfroms !== "undefined") {
       platformsElm =
         platforms.length > 0 ? (
           <Card.Text>

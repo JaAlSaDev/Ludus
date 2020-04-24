@@ -80,6 +80,7 @@ export default class App extends Component {
   };
 
   render() {
+
     let { user, isLogin } = this.state;
 
     return (

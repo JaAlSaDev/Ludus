@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import { Container, Row, Col, Form } from "react-bootstrap";
 import GameCard from "./GameCard";
-import axios from "axios";
+import Axios from "axios";
 
 export default class GameSearch extends Component {
   state = {
@@ -18,23 +18,15 @@ export default class GameSearch extends Component {
   };
 
   async getGames(searchTerm) {
-    axios({
-      url: "https://cors-anywhere.herokuapp.com/https://api-v3.igdb.com/games",
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "user-key": "e136419f3f5c53e489266f695ae903e6",
-      },
-      data: `search "${searchTerm}"; fields name, cover.image_id, first_release_date; limit 20; offset 0; where themes != (42);`,
-    })
-      .then((response) => {
-        this.setState({
-          results: response.data,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
+    try {
+      let games = await Axios.get(`http://localhost:5000/game/search/${searchTerm}`);
+
+      this.setState({
+        results: games.data,
       });
+    } catch (error) {
+
+    }
   }
 
   searchHandler = () => {

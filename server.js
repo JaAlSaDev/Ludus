@@ -2,14 +2,13 @@
 require("dotenv").config();
 const path = require("path");
 
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT || 3001;
 
 var whitelist = [
-  "http://localhost:3000",
-  "http://localhost:5000",
   "https://api-v3.igdb.com",
 ];
 var corsOptions = {
@@ -40,7 +39,7 @@ app.use(express.static("public"));
 
 // any route will start from user/...
 app.use("/user", require("./routes/auth.routes"));
-app.use("/gameCollection", require("./routes/games.routes"));
+app.use("/game", require("./routes/games.routes"));
 app.get("*", (req, res) =>
   res.json({ error: "Are you lost?", status: 404 }).status(404)
 );

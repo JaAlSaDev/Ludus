@@ -9,21 +9,15 @@ export const Login = (props) => {
     setLogin({ ...login, [name]: value });
   };
 
-  useEffect(() => {
-    
-  });
+  useEffect(() => {});
 
   let onSubmit = (e) => {
     e.preventDefault();
 
-    Axios.post("http://localhost:5000/user/login", login)
-      .then((res) => {
-        if (res.data.token) {
-          props.userLogin(res.data.token)
-        } else {
-        }
-      })
-      .catch((err));
+    try {
+      let res = Axios.post("http://localhost:5000/user/login", login);
+      props.userLogin(res.data.token);
+    } catch (error) {}
   };
 
   return (

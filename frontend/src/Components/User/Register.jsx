@@ -6,22 +6,20 @@ import { Link } from "react-router-dom";
 export const Register = (props) => {
   const [user, setUser] = useState({});
 
-  useEffect(() => {
-  });
+  useEffect(() => {});
 
   let onChangeInput = ({ target: { name, value } }) => {
     setUser({ ...user, [name]: value });
   };
 
-  let onSubmit = (e) => {
+  let onSubmit = async (e) => {
     e.preventDefault();
 
-    Axios.post("http://localhost:5000/user/register", user)
-      .then((res) => {
-          props.userLogin(res.data.token)
-        //   props.refreshPage();
-      })
-      .catch((err));
+    try {
+      let res = await Axios.post("http://localhost:5000/user/register", user);
+
+      props.userLogin(res.data.token);
+    } catch (error) {}
   };
 
   return (
@@ -50,11 +48,7 @@ export const Register = (props) => {
         </Form.Group>
 
         <Link to="/login">
-          <Button
-            variant="primary"
-            type="submit"
-            onClick={(e) => onSubmit(e)}
-          >
+          <Button variant="primary" type="submit" onClick={(e) => onSubmit(e)}>
             Register
           </Button>
         </Link>
