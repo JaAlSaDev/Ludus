@@ -7,7 +7,6 @@ export const Register = (props) => {
   const [user, setUser] = useState({});
 
   useEffect(() => {
-    console.log(user);
   });
 
   let onChangeInput = ({ target: { name, value } }) => {
@@ -22,7 +21,7 @@ export const Register = (props) => {
           props.userLogin(res.data.token)
         //   props.refreshPage();
       })
-      .catch((err) => console.log(err.response));
+      .catch((err));
   };
 
   return (

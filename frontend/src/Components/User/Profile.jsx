@@ -15,12 +15,9 @@ export default class Profile extends Component {
   };
 
   getUserInfo = async (userName) => {
-    console.log("profile props", this.props);
 
     try {
       let user = await this.props.getUserInfo(userName);
-
-      console.log("user get info", user);
 
       if (user) {
         this.setState({
@@ -36,7 +33,6 @@ export default class Profile extends Component {
         });
       }
     } catch (error) {
-      console.log(error);
     }
   };
 
@@ -52,10 +48,8 @@ export default class Profile extends Component {
         }
       )
       .then((res) => {
-        console.log(this.state.user);
       })
       .catch((err) => {
-        console.log(err);
       });
   };
 
@@ -71,10 +65,8 @@ export default class Profile extends Component {
         }
       )
       .then((res) => {
-        console.log(this.state.user);
       })
       .catch((err) => {
-        console.log(err);
       });
   };
 
@@ -90,15 +82,12 @@ export default class Profile extends Component {
         }
       )
       .then((res) => {
-        console.log(this.state.user);
       })
       .catch((err) => {
-        console.log(err);
       });
   };
 
   componentDidMount() {
-    console.log("username profile", this.props.match.params.userName)
     this.getUserInfo(this.props.match.params.userName);
   }
 
@@ -135,7 +124,7 @@ export default class Profile extends Component {
     if (isLoaded) {
       if (FriendsList.length > 0) {
         friendsElm = FriendsList.map((friend, i) => {
-          console.log(friend);
+          
           return (
             <>
               <Card.Text key={i}>{friend.friendID.name}</Card.Text>
@@ -195,10 +184,6 @@ export default class Profile extends Component {
       }
     }
 
-    let x;
-
-    console.log("state: ", this.state);
-    console.log("props: ", this.props.authState);
     return (
       <Col md={3} className="m-1">
         {isLoaded ? (

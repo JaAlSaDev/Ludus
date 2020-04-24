@@ -10,7 +10,7 @@ export const Login = (props) => {
   };
 
   useEffect(() => {
-    console.log(login);
+    
   });
 
   let onSubmit = (e) => {
@@ -20,13 +20,10 @@ export const Login = (props) => {
       .then((res) => {
         if (res.data.token) {
           props.userLogin(res.data.token)
-          console.log("login token",res.data.token)
-
         } else {
-          console.log("email or password is not correct");
         }
       })
-      .catch((err) => console.log(err.response));
+      .catch((err));
   };
 
   return (

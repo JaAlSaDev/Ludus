@@ -32,7 +32,6 @@ router.post("/register", async (req, res) => {
     });
     res.status(201).json({ msg: "user created", userInfo: user, token });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ message: "unable to register" });
   }
 });
@@ -68,8 +67,6 @@ router.post("/login", (req, res) => {
 });
 
 router.get("/showProfile/:userName", async (req, res) => {
-  console.log(req.body);
-
   try {
     let user = await User.findOne(
       { userName: req.params.userName },
@@ -79,12 +76,8 @@ router.get("/showProfile/:userName", async (req, res) => {
       select: "name",
       model: "User",
     });
-
-    // if (!user) throw err;
-    console.log(user);
     res.status(200).json({ user });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ message: "something went wrong!", error });
   }
 });
@@ -101,17 +94,14 @@ router.put("/updateUser", isLoggedIn, async (req, res) => {
     });
     return res.status(200).json({ user });
   } catch (error) {
-    console.log(error);
+  
     res.status(400).json({ message: "something went wrong!" });
   }
 });
 
 router.put("/search", async (req, res) => {
-  console.log(req.body);
 
   let { searchTerm } = req.body;
-
-  console.log(req.body);
   try {
     let users = await User.find(
       { name: { $regex: searchTerm, $options: "i" } },
@@ -122,14 +112,11 @@ router.put("/search", async (req, res) => {
 
     res.status(200).json({ users });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error });
   }
 });
 
 router.put("/addFriend", isLoggedIn, async (req, res) => {
-  console.log(req.body);
-
   let { recieverId } = req.body;
   let senderFriendObj = {
     friendID: recieverId,
@@ -158,14 +145,11 @@ router.put("/addFriend", isLoggedIn, async (req, res) => {
 
     res.status(200).json({ sender, reciever });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ message: "friends were not added" });
   }
 });
 
 router.put("/removeFriend", isLoggedIn, async (req, res) => {
-  console.log(req.body);
-
   let { friendID } = req.body;
 
   try {
@@ -183,13 +167,11 @@ router.put("/removeFriend", isLoggedIn, async (req, res) => {
 
     res.status(200).json({ user, friend });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ message: "Deletion unsuccessful!" });
   }
 });
 
 router.put("/acceptFriend", isLoggedIn, async (req, res) => {
-  console.log(req.body);
 
   let { senderID } = req.body;
 
@@ -208,7 +190,6 @@ router.put("/acceptFriend", isLoggedIn, async (req, res) => {
 
     res.status(200).json({ reciever, sender });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ message: "Accept  unsuccessful!" });
   }
 });

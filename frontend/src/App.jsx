@@ -21,7 +21,6 @@ export default class App extends Component {
   };
 
   componentDidMount() {
-    console.log(localStorage.token);
 
     if (localStorage.token) {
       this.userLogin(localStorage.token);
@@ -35,9 +34,6 @@ export default class App extends Component {
   userLogin = async (token) => {
     localStorage.setItem("token", token);
     let decodedToken = decode(token);
-    // console.log(token)
-
-    console.log(decodedToken);
     if (decodedToken) {
       try {
         let user = await this.getUserInfo(decodedToken.userName);
@@ -47,7 +43,6 @@ export default class App extends Component {
           isLogin: true,
         });
       } catch (error) {
-        console.log(error);
         this.setState({
           user: null,
           isLogin: false,
@@ -75,7 +70,6 @@ export default class App extends Component {
       let user = await res.data.user;
       return user;
     } catch (error) {
-      console.log(error.response);
       return null;
     }
   }
@@ -87,8 +81,6 @@ export default class App extends Component {
 
   render() {
     let { user, isLogin } = this.state;
-
-    console.log(user);
 
     return (
       <div>

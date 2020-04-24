@@ -32,7 +32,6 @@ export default class GamePage extends Component {
           where id = ${gameID};`,
     })
       .then((response) => {
-        console.log(response.data[0]);
 
         this.setState({
           game: response.data[0],
@@ -49,7 +48,6 @@ export default class GamePage extends Component {
   }
 
   render() {
-    console.log(this.props.match.params.gameID);
     let { isLoaded, game } = this.state;
     let {
       cover,

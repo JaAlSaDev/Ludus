@@ -13,16 +13,11 @@ export default class EditProfile extends Component {
     let temp = { ...this.state };
     temp.edit[e.target.name] = e.target.value;
     this.setState(temp);
-    console.log(this.state.edit);
   };
   
   getUserInfo = async (userName) => {
-    console.log("profile props", this.props);
-
     try {
       let user = await this.props.getUserInfo(userName);
-
-      console.log("user get info", user);
 
       if (user) {
         this.setState({
@@ -37,12 +32,11 @@ export default class EditProfile extends Component {
         });
       }
     } catch (error) {
-      console.log(error);
     }
   };
   onSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state.edit);
+
     axios
       .put("http://localhost:5000/user/updateUser", this.state.edit, {
         headers: {
@@ -50,10 +44,10 @@ export default class EditProfile extends Component {
         },
       })
       .then((res) => {
-        console.log(res.data);
+        
       })
       .catch((err) => {
-        console.log(err.response);
+        
       });
   };
   componentWillMount() {

@@ -15,8 +15,6 @@ export default class GameSearch extends Component {
     temp[e.target.name] = e.target.value;
 
     this.setState(temp);
-
-    console.log(temp[e.target.name]);
   };
 
   async getGames(searchTerm) {
@@ -30,8 +28,6 @@ export default class GameSearch extends Component {
       data: `search "${searchTerm}"; fields name, cover.image_id, first_release_date; limit 20; offset 0; where themes != (42);`,
     })
       .then((response) => {
-        console.log(response.data);
-
         this.setState({
           results: response.data,
         });

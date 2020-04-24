@@ -15,13 +15,9 @@ export default class UserSearch extends Component {
     temp[e.target.name] = e.target.value;
 
     this.setState(temp);
-
-    console.log(temp[e.target.name]);
   };
 
   async getUsers(searchTerm) {
-
-    console.log("search Term: "+searchTerm)
     axios
       .put("http://localhost:5000/user/search", { searchTerm: searchTerm })
       .then((res) => {
@@ -29,15 +25,12 @@ export default class UserSearch extends Component {
           results: res.data.users,
         });
 
-        console.log(this.state.results);
       })
       .catch((err) => {
-        console.log(err);
       });
   }
 
   searchHandler = () => {
-    console.log("search Term: "+this.state.searchTerm)
     this.getUsers(this.state.searchTerm);
   };
   render() {
