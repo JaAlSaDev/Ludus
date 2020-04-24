@@ -8,7 +8,7 @@ export default class EditProfile extends Component {
     user: {},
     isLoaded: false,
     edit: {
-        password: ""
+      password: "",
     },
   };
 
@@ -19,13 +19,14 @@ export default class EditProfile extends Component {
 
     this.setState(temp);
 
-    console.log(this.state.edit)
+    console.log(this.state.edit);
   };
 
-  getUserInfo = (userID) => {
+  getUserInfo = (userName) => {
     axios
-      .put("http://localhost:5000/user/showProfile", { userID: userID })
+      .get(`http://localhost:5000/user/showProfile/${userName}`)
       .then((res) => {
+        console.log(res);
         this.setState({
           user: res.data.user,
           isLoaded: true,
@@ -34,29 +35,31 @@ export default class EditProfile extends Component {
         console.log(this.state.user);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
       });
   };
 
   onSubmit = (e) => {
     e.preventDefault();
 
-    this.state.edit._id=this.props.match.params.userID;
-
-    console.log(this.state.edit)
+    console.log(this.state.edit);
 
     axios
-      .put("http://localhost:5000/user/updateUser", this.state.edit)
+      .put("http://localhost:5000/user/updateUser", this.state.edit, {
+        headers: {
+          "x-auth-token": localStorage.token
+        },
+      })
       .then((res) => {
         console.log(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
       });
   };
 
   componentWillMount() {
-    this.getUserInfo(this.props.match.params.userID);
+    this.getUserInfo(this.props.match.params.userName);
   }
 
   render() {
@@ -96,9 +99,11 @@ export default class EditProfile extends Component {
             </Form.Group>
             <Form.Group>
               <Form.Label>Email:</Form.Label>
-              <Form.Control 
-              defaultValue={email}
-              name="email" onChange={(e) => this.onChangeInput(e)} />
+              <Form.Control
+                defaultValue={email}
+                name="email"
+                onChange={(e) => this.onChangeInput(e)}
+              />
             </Form.Group>
             <Form.Group>
               <Form.Label>Password:</Form.Label>
@@ -112,21 +117,23 @@ export default class EditProfile extends Component {
             <Form.Group>
               <Form.Label>Nationality:</Form.Label>
               <Form.Control
-                 defaultValue={nationality}
+                defaultValue={nationality}
                 name="nationality"
                 onChange={(e) => this.onChangeInput(e)}
               />
             </Form.Group>
             <Form.Group>
               <Form.Label>About me:</Form.Label>
-              <Form.Control 
-              defaultValue={aboutMe}
-              name="aboutMe" onChange={(e) => this.onChangeInput(e)} />
+              <Form.Control
+                defaultValue={aboutMe}
+                name="aboutMe"
+                onChange={(e) => this.onChangeInput(e)}
+              />
             </Form.Group>
             <Form.Group>
               <Form.Label>Languages:</Form.Label>
               <Form.Control
-               defaultValue={languages}
+                defaultValue={languages}
                 name="languages"
                 onChange={(e) => this.onChangeInput(e)}
               />

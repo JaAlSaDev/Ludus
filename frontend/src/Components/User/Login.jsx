@@ -15,17 +15,18 @@ export const Login = (props) => {
 
   let onSubmit = (e) => {
     e.preventDefault();
+    console.log(login)
     Axios.post("http://localhost:5000/user/login", login)
       .then((res) => {
-        if (res.data.token) {
-          localStorage.setItem("token", res.data.token);
-          // props.history.push('/games')
-          props.refreshPage();
-        } else {
-          console.log("email or password is not correct");
-        }
+        // if (res.data.token) {
+          props.userLogin(res.data.token)
+          console.log(res.data.token)
+
+        // } else {
+        //   console.log("email or password is not correct");
+        // }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err.response));
   };
 
   return (

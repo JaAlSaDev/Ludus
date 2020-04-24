@@ -11,6 +11,7 @@ import UserSearch from "./Components/User/UserSearch";
 import GamePage from "./Components/Games/GamePage";
 import Profile from "./Components/User/Profile";
 import EditProfile from "./Components/User/EditProfile";
+import { decode } from "jsonwebtoken";
 
 export default class App extends Component {
   state = {
@@ -18,23 +19,29 @@ export default class App extends Component {
     isLogin: false,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     console.log(localStorage.token);
-    this.userLogin();
+
+    if (localStorage.token) {
+      this.userLogin(localStorage.token);
+    }
   }
 
-  userLogin = () => {
-    try {
-      let token = localStorage.token;
-      let user = jwt_decode(token, "SECRET").user;
+  loginHandler= (token) =>{
+
+    this.userLogin(token);
+  }
+
+  userLogin = (token) => {
+    localStorage.setItem("token", token);
+    let user = decode(token);
+    // console.log(token)
+
+    console.log(user)
+    if (user) {
       this.setState({
-        user: user,
+        user: user.newUser,
         isLogin: true,
-      });
-    } catch (err) {
-      this.setState({
-        user: null,
-        isLogin: false,
       });
     }
   };
@@ -49,7 +56,7 @@ export default class App extends Component {
   };
 
   refreshPage = () => {
-    this.forceUpdate()
+    this.forceUpdate();
     window.location.reload(false);
   };
 
@@ -71,20 +78,33 @@ export default class App extends Component {
           {/* <Route /> */}
           <Route
             path="/login"
-            render={() => <Login userLogin={this.userLogin} refreshPage={this.refreshPage} />}
+            render={() => (
+              <Login
+                userLogin={this.loginHandler}
+                refreshPage={this.refreshPage}
+              />
+            )}
           />
-          <Route path="/register" render={() => <Register userLogin={this.userLogin}  refreshPage={this.refreshPage}/>} />
+          <Route
+            path="/register"
+            render={() => (
+              <Register
+                userLogin={this.userLogin}
+                refreshPage={this.refreshPage}
+              />
+            )}
+          />
           <Route path="/gameSearch" component={GameSearch} />
           <Route path="/gamePage/:gameID" component={GamePage} />
           <Route path="/userSearch" component={UserSearch} />
           <Route
-            path="/users/:userID"
+            path="/users/:userName"
             render={(props) => <Profile authState={this.state} {...props} />}
           />
           <Route
-            path="/EditProfile/:userID"
+            path="/EditProfile/:userName"
             render={(props) =>
-              isLogin && props.match.params.userID === user._id ? (
+              isLogin && props.match.params.userName === user.userName ? (
                 <EditProfile {...props} />
               ) : (
                 <Login />

@@ -19,8 +19,7 @@ export const Register = (props) => {
 
     Axios.post("http://localhost:5000/user/register", user)
       .then((res) => {
-        //   localStorage.setItem("token", res.data.token);
-        //   props.userLogin()
+          props.userLogin(res.data.token)
         //   props.refreshPage();
       })
       .catch((err) => console.log(err.response));

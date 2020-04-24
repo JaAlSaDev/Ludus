@@ -6,14 +6,19 @@ import axios from "axios";
 
 export default class Profile extends Component {
   state = {
-    user: {},
+    user: {
+      FriendsList: [],
+    },
+    authState: this.props.authState,
+
     isLoaded: false,
   };
 
-  getUserInfo = (userID) => {
+  getUserInfo = (userName) => {
     axios
-      .put("http://localhost:5000/user/showProfile", { userID: userID })
+      .get(`http://localhost:5000/user/showProfile/${userName}`)
       .then((res) => {
+        console.log(res);
         this.setState({
           user: res.data.user,
           isLoaded: true,
@@ -22,11 +27,12 @@ export default class Profile extends Component {
         console.log(this.state.user);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
       });
   };
 
   sendFriendRequest = (senderId, recieverId) => {
+    console.log(senderId, recieverId);
     axios
       .put("http://localhost:5000/user/addFriend", { senderId, recieverId })
       .then((res) => {
@@ -36,7 +42,6 @@ export default class Profile extends Component {
         console.log(err);
       });
   };
-
 
   acceptFriendRequest = (recieverID, senderID) => {
     axios
@@ -49,19 +54,29 @@ export default class Profile extends Component {
       });
   };
 
-  removeFriend = (_id, friendID) =>{
+  removeFriend = (_id, friendID) => {
     axios
-      .put("http://localhost:5000/user/removeFriend", {_id, friendID })
+      .put("http://localhost:5000/user/removeFriend", { _id, friendID })
       .then((res) => {
         console.log(this.state.user);
       })
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  componentDidMount() {
+    this.getUserInfo(this.props.match.params.userName);
   }
-  
-  componentWillMount() {
-    this.getUserInfo(this.props.match.params.userID);
+
+  static getDerivedStateFromProps(props, state) {
+    if (props.authState != state.authState) {
+      return {
+        authState: props.authState,
+      };
+    }
+
+    return null;
   }
 
   render() {
@@ -80,31 +95,68 @@ export default class Profile extends Component {
     } = user;
 
     let friendsElm = null;
-    
-    if (typeof FriendsList !== "undefined") {
-      friendsElm = FriendsList.map((friend, i) => {
 
-        console.log(friend)
+    if (FriendsList.length > 0) {
+      friendsElm = FriendsList.map((friend, i) => {
+        console.log(friend);
         return (
           <>
-            <Card.Text key={i}>{friend.friendID.name}</Card.Text>
+            <Card.Text key={i}>
+               {friend.friendID.name }
+            </Card.Text>
 
             {this.props.authState.isLogin &&
             _id === this.props.authState.user._id ? (
               <>
                 {friend.isAccepted ? (
-                  <Button onClick={this.removeFriend(this.props.authState.user._id, friend.friendID._id)} variant="outline-dark"> Remove Friend</Button>
+                  <Button
+                    onClick={()=> this.removeFriend(
+                      this.props.authState.user._id,
+                      friend.friendID._id
+                    )}
+                    variant="outline-dark"
+                  >
+                    {" "}
+                    Remove Friend
+                  </Button>
                 ) : (
                   <>
                     {" "}
                     {friend.role == "sender" ? (
                       <>
-                        <Button onClick={this.acceptFriendRequest(this.props.authState.user._id, friend.friendID._id)} variant="outline-dark"> Accept Request </Button>
+                        <Button
+                          onClick={()=> this.acceptFriendRequest(
+                            this.props.authState.user._id,
+                            friend.friendID._id
+                          )}
+                          variant="outline-dark"
+                        >
+                          {" "}
+                          Accept Request{" "}
+                        </Button>
 
-                        <Button onClick={this.removeFriend(this.props.authState.user._id, friend.friendID._id)} variant="outline-dark"> Reject Request</Button>
+                        <Button
+                          onClick={()=> this.removeFriend(
+                            this.props.authState.user._id,
+                            friend.friendID._id
+                          )}
+                          variant="outline-dark"
+                        >
+                          {" "}
+                          Reject Request
+                        </Button>
                       </>
                     ) : (
-                      <Button onClick={this.removeFriend(this.props.authState.user._id, friend.friendID._id)} variant="outline-dark"> Cancel Request</Button>
+                      <Button
+                        onClick={()=> this.removeFriend(
+                          this.props.authState.user._id,
+                          friend.friendID._id
+                        )}
+                        variant="outline-dark"
+                      >
+                        {" "}
+                        Cancel Request
+                      </Button>
                     )}{" "}
                   </>
                 )}
@@ -114,7 +166,10 @@ export default class Profile extends Component {
         );
       });
     }
+    let x;
 
+    console.log("state: ", this.state.authState);
+    console.log("props: ", this.props.authState);
     return (
       <Col md={3} className="m-1">
         {isLoaded ? (
@@ -125,15 +180,15 @@ export default class Profile extends Component {
               variant="top"
               src={profilePic}
             />
+
             <Card.Body>
               {this.props.authState.isLogin &&
               _id !== this.props.authState.user._id ? (
                 <Button
                   variant="outline-dark"
-                  onClick={this.sendFriendRequest(
-                    this.props.authState.user._id,
-                    _id
-                  )}
+                  onClick={() =>
+                    this.sendFriendRequest(this.props.authState.user._id, _id)
+                  }
                 >
                   {" "}
                   Add Friend{" "}
@@ -144,7 +199,7 @@ export default class Profile extends Component {
                 <Button
                   as={Link}
                   to={{
-                    pathname: `/EditProfile/${_id}`,
+                    pathname: `/EditProfile/${userName}`,
                     user: this.state.user,
                   }}
                   variant="outline-dark"

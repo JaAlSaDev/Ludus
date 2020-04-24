@@ -1,119 +1,113 @@
-
-const express = require('express')
-const router = express.Router()
-const User = require('../models/user.model')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const gravatar = require('gravatar')
+const express = require("express");
+const router = express.Router();
+const User = require("../models/user.model");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 require("dotenv").config();
-//const isLoggedIn = require("../config/config");
-//require("dotenv").config();
+let tokenDuration = process.env.TokenDuration;
+const isLoggedIn = require("../config/config");
 
 // any route will start from user/...
-router.post('/register', (req, res) => {
-  
+router.post("/register", async (req, res) => {
   const newUser = {
     name: req.body.name,
     userName: req.body.userName,
     email: req.body.email,
     password: req.body.password,
-    profilePic: req.body.profilePic || gravatar.url(req.body.email, {protocol: 'https', s: '100'})
+    profilePic:
+      req.body.profilePic ||
+      gravatar.url(req.body.email, { protocol: "https", s: "100" }),
+  };
 
+  try {
+    let user = new User(newUser);
+    user.password = await bcrypt.hash(newUser.password, 10);
+    let userSaved = await user.save();
+
+    let payload = { newUser: userSaved };
+
+    let token = jwt.sign(payload, process.env.SECRET, {
+      expiresIn: tokenDuration,
+    });
+    res.status(201).json({ msg: "user created", userInfo: user, token });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "unable to register" });
   }
-  // res.send(newUser)
-  User.findOne({ email: newUser.email })
-    .then(user => {
-      // if email is not registered in the DB
-      if (!user) {
+});
 
-        bcrypt.hash(newUser.password, 10, (err, hash) => {
-
-          newUser.password = hash
-          User.create(newUser)
-            .then(() => {
-              let payload = { newUser }
-              let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
-              res.json({ msg: 'user created', userInfo: newUser, token })})
-
-
-        })
-      } else {
-        // if email is already on the DB
-        res.send('Email has already been used!')
-      }
-    }).catch(err => res.json(err))
-})
-
-
-router.post('/login', (req, res) => {
+router.post("/login", (req, res) => {
   const userLogin = {
     email: req.body.email,
-    password: req.body.password
-  }
+    password: req.body.password,
+  };
 
   User.findOne({ email: userLogin.email })
-    .then(user => {
-
+    .then((user) => {
       // if email exists
       if (user) {
         // if password is correct
         if (bcrypt.compareSync(userLogin.password, user.password)) {
+          user.password = "";
+          let payload = { newUser: user };
+          let token = jwt.sign(payload, process.env.SECRET, {
+            expiresIn: tokenDuration,
+          });
 
-          user.password = ""
-          let payload = { user }
-          let token = jwt.sign(payload, "SECRET", { expiresIn: 1500 })
-
-          res.json({ token })
-
+          res.status(200).json({ token });
         } else {
-          res.json({ msg: 'password is not correct' })
+          res.status(400).json({ msg: "password is not correct" });
         }
-
       } else {
-        res.json({ msg: 'Email is wrong' })
+        res.status(400).json({ msg: "Email is wrong" });
       }
-
-
-    }).catch(err => res.json(err).status(200))
-})
-
-router.put("/showProfile", async (req, res) => {
-  console.log(req.body);
-
-  try {
-    let user = await User.findById(req.body.userID, "-password").populate({
-      path: "FriendsList.friendID",
-      select: "name",
-    });;
-     
-    if (!user) throw err;
-
-    res.status(200).json({ user });
-  } catch (error) {
-    res.status(400).json({ message: "something went wrong!" });
-  }
+    })
+    .catch((err) => res.status(400).json(err));
 });
 
-router.put("/updateUser", async (req, res) => {
+router.get("/showProfile/:userName", async (req, res) => {
   console.log(req.body);
-  let {
-    _id,
-    password
-  } = req.body
-  delete req.body._id
+
   try {
-    if(password !== ""){
-      req.body.password = await bcrypt.hash(req.body.password, 10)
-    } else {
-      delete req.body.password
-    }
-    let user = await User.findByIdAndUpdate( _id, req.body, {
-      new: true,
+    let user = await User.findOne(
+      { userName: req.params.userName },
+      "-password"
+    ).populate({
+      path: "FriendsList.friendID",
+      select: "name",
+      model: "User",
     });
 
     if (!user) throw err;
-
+    console.log(user);
     res.status(200).json({ user });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "something went wrong!", error });
+  }
+});
+
+router.put("/updateUser", isLoggedIn, async (req, res) => {
+  console.log("body: ",req.body);
+  // console.log("token",req.user);
+
+  try {
+    // let user = await User.findById(req.user._id);
+    if (!user) throw error;
+
+    if (req.body.password !== "") {
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+    } else {
+      delete req.body.password;
+    }
+    user = await User.findByIdAndUpdate(req.user._id, req.body, {
+      new: true,
+    });
+
+    // if (!user) throw error;
+
+    return res.status(200).json({ user });
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: "something went wrong!" });
@@ -123,20 +117,20 @@ router.put("/updateUser", async (req, res) => {
 router.put("/search", async (req, res) => {
   console.log(req.body);
 
-  let  {searchTerm}  = req.body;
+  let { searchTerm } = req.body;
 
-  console.log((req.body))
+  console.log(req.body);
   try {
     let users = await User.find(
-      { name: { $regex: searchTerm, $options: "i" }},
-      "name profilePic"
+      { name: { $regex: searchTerm, $options: "i" } },
+      "name profilePic userName"
     );
 
     if (!users) throw err;
 
     res.status(200).json({ users });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).json({ error });
   }
 });
@@ -148,11 +142,13 @@ router.put("/addFriend", async (req, res) => {
   let senderFriendObj = {
     friendID: recieverId,
     role: "reciever",
+    check: true,
   };
 
   let recieverFriendObj = {
     friendID: senderId,
     role: "sender",
+    check: true,
   };
 
   try {
@@ -224,7 +220,5 @@ router.put("/acceptFriend", async (req, res) => {
     res.status(400).json({ message: "Accept  unsuccessful!" });
   }
 });
-
-
 
 module.exports = router;

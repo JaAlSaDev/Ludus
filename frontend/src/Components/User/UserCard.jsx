@@ -3,7 +3,7 @@ import { Col, Card, Button } from "react-bootstrap";
 import { withRouter, NavLink, Link } from "react-router-dom";
 
 export default function UserCard(props) {
-  let { _id, name, profilePic } = props.user;
+  let { userName, name, profilePic } = props.user;
 
   console.log(name)
   console.log(profilePic)
@@ -18,7 +18,7 @@ export default function UserCard(props) {
         /> */}
         <Card.Body>
         <Card.Title className={"text-center"}>
-            <Link className="a" to={`/users/${_id}`}> 
+            <Link className="a" to={`/users/${userName}`}> 
               {name}
             </Link>
           </Card.Title>
