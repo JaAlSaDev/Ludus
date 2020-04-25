@@ -19,7 +19,7 @@ export default class GameSearch extends Component {
 
   async getGames(searchTerm) {
     try {
-      let games = await Axios.get(`http://localhost:5000/game/search/${searchTerm}`);
+      let games = await Axios.get(`/game/search/${searchTerm}`);
 
       this.setState({
         results: games.data,

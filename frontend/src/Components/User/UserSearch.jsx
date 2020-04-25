@@ -19,7 +19,7 @@ export default class UserSearch extends Component {
 
   async getUsers(searchTerm) {
     axios
-      .put("http://localhost:5000/user/search", { searchTerm: searchTerm })
+      .put("/user/search", { searchTerm: searchTerm })
       .then((res) => {
         this.setState({
           results: res.data.users,

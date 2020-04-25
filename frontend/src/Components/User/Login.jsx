@@ -11,11 +11,11 @@ export const Login = (props) => {
 
   useEffect(() => {});
 
-  let onSubmit = (e) => {
+  let onSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      let res = Axios.post("http://localhost:5000/user/login", login);
+      let res = await Axios.post("/user/login", login);
       props.userLogin(res.data.token);
     } catch (error) {}
   };

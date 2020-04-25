@@ -16,7 +16,7 @@ export const Register = (props) => {
     e.preventDefault();
 
     try {
-      let res = await Axios.post("http://localhost:5000/user/register", user);
+      let res = await Axios.post("/user/register", user);
 
       props.userLogin(res.data.token);
     } catch (error) {}

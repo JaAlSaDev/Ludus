@@ -65,7 +65,7 @@ export default class App extends Component {
   async getUserInfo(userName) {
     try {
       let res = await Axios.get(
-        `http://localhost:5000/user/showProfile/${userName}`
+        `/user/showProfile/${userName}`
       );
       let user = await res.data.user;
       return user;

@@ -38,7 +38,7 @@ export default class EditProfile extends Component {
     e.preventDefault();
 
     axios
-      .put("http://localhost:5000/user/updateUser", this.state.edit, {
+      .put("/user/updateUser", this.state.edit, {
         headers: {
           "x-auth-token": localStorage.token,
         },

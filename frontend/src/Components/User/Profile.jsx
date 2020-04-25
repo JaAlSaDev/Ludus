@@ -39,7 +39,7 @@ export default class Profile extends Component {
   sendFriendRequest = (recieverId) => {
     axios
       .put(
-        "http://localhost:5000/user/addFriend",
+        "/user/addFriend",
         { recieverId },
         {
           headers: {
@@ -56,7 +56,7 @@ export default class Profile extends Component {
   acceptFriendRequest = (senderID) => {
     axios
       .put(
-        "http://localhost:5000/user/acceptFriend",
+        "/user/acceptFriend",
         { senderID },
         {
           headers: {
@@ -73,7 +73,7 @@ export default class Profile extends Component {
   removeFriend = (friendID) => {
     axios
       .put(
-        "http://localhost:5000/user/removeFriend",
+        "/user/removeFriend",
         { friendID },
         {
           headers: {

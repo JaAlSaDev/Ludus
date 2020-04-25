@@ -10,7 +10,7 @@ export default class GamePage extends Component {
 
   async getGameInfo(gameID) {
     try {
-      let game = await Axios.get(`http://localhost:5000/game/getGameInfo/${gameID}`);
+      let game = await Axios.get(`/game/getGameInfo/${gameID}`);
 
       this.setState({
         game: game.data,
