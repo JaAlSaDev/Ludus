@@ -4,8 +4,7 @@ import { withRouter, NavLink, Link } from "react-router-dom";
 
 export default function GameCard(props) {
   let { id, name, cover, first_release_date } = props.game;
-
-  console.log("game id: " + id);
+  
   let imageSize = {
     cover_small: "cover_small",
     screenshot_med: "screenshot_med",
